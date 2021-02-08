@@ -10,7 +10,7 @@
         <video id="localVideo" autoplay width="480px"></video>
         <video id="remoteVideo" width="480px" autoplay></video>
     </div>
-    <script src="./rtc.js"></script>
+    
     <script>
         let localVideo = document.getElementById("localVideo");
 let remoteVideo = document.getElementById("remoteVideo");
@@ -27,7 +27,7 @@ let pcConfig = {
       }]
 }
 
-let socket = new WebSocket("wss://web-socket.run.goorm.io");
+let socket = new WebSocket("wss://just-chat.kro.kr:51359");
 
 
 socket.addEventListener('message', (msg)=>{
