@@ -34,7 +34,7 @@
         socket.addEventListener('message', (msg) => {
             message = JSON.parse(msg.data);
             console.log('Client received message :', JSON.stringify(message));
-            if (message.type == 'got user media') {
+            if (message.type === 'got user media') {
                 maybeStart();
                 doCall();
             } else if (message.type === 'offer') {
