@@ -71,7 +71,7 @@
             console.log("Adding local stream");
             localStream = stream;
             localVideo.srcObject = stream;
-            sendMessage("got user media");
+            socket.send("got user media");
             if (isInitiator) {
                 //maybeStart();
             }
