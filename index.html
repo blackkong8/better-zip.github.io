@@ -34,7 +34,7 @@
         socket.addEventListener('message', (msg) => {
             message = JSON.parse(msg.data);
             console.log('Client received message :', JSON.stringify(message));
-            if (message === 'got user media') {
+            if (message.type == 'got user media') {
                 maybeStart();
                 doCall();
             } else if (message.type === 'offer') {
@@ -71,7 +71,7 @@
             console.log("Adding local stream");
             localStream = stream;
             localVideo.srcObject = stream;
-            socket.send("got user media");
+            sendMessage({type:"got user media"});
             if (isInitiator) {
                 //maybeStart();
             }
