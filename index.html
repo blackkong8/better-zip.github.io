@@ -36,8 +36,9 @@
             console.log('Client received message :', JSON.stringify(message));
             if (message === 'got user media') {
                 maybeStart();
+                doCall();
             } else if (message.type === 'offer') {
-                if (!isStarted) {
+                if (!isInitiator && !isStarted) {
                     maybeStart();
                 }
                 pc.setRemoteDescription(new RTCSessionDescription(message));
@@ -121,7 +122,7 @@
                 isStarted = true;
                 console.log("isInitiator : ", isInitiator);
                 if (isInitiator) {
-                    doCall();
+                    //doCall();
                 }
             } else {
                 console.error('maybeStart not Started!');
