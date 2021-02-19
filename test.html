@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        const pcConfig = {
+            'iceServers': [{
+                'urls': 'stun:stun.l.google.com:19302'
+            }]
+        }
+
+        const socket = new WebSocket('ws://localhost:8080')
+
+        function send_msg(msg) {
+            console.log("send", msg)
+            socket.send(JSON.stringify(msg))
+        }
+
+        pc = new RTCPeerConnection(pcConfig)
+        pc.onicecandidate = function (event) {
+            if (event.candidate) {
+                send_msg({
+                    type: "icecandidate",
+                    candidate: event.candidate.candidate,
+                    sdpMid: event.candidate.sdpMid,
+                    sdpMLineIndex: event.candidate.sdpMLineIndex
+                })
+            } else {
+                console.log('---end---')
+                socket.close()
+            }
+        }
+
+        socket.onmessage = function (event) {
+            console.log(event)
+            data = JSON.parse(event.data)
+            if (data.type == "start") {
+                console.log("start")
+                pc.createOffer().then(
+                    function (offer) {
+                        pc.setLocalDescription(offer)
+                        send_msg(offer)
+                    }
+                )
+            } else if (data.type == "offer") {
+                console.log("offer")
+                pc.setRemoteDescription(new RTCSessionDescription(data))
+                pc.createAnswer().then(
+                    function (answer) {
+                        pc.setLocalDescription(answer)
+                        send_msg(answer)
+                    }
+                )
+            } else if (data.type == "answer") {
+                console.log("answer")
+                pc.setRemoteDescription(new RTCSessionDescription(data))
+            } else if (data.type == "icecandidate") {
+                console.log("icecandidate")
+                const icecandidate = new RTCIceCandidate({
+                    candidate: data.candidate,
+                    sdpMid: data.sdpMid,
+                    sdpMLineIndex: data.sdpMLineIndex
+                })
+                pc.addIceCandidate(icecandidate)
+            }
+        }
+
+        sendChannel = pc.createDataChannel("DataChannel", null)
+        pc.ondatachannel = function (event) {
+            receiveChannel = event.channel
+            receiveChannel.onmessage = function (event) { console.log(event) }
+        }
+
+    </script>
+</body>
+
+</html>
