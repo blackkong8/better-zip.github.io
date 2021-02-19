@@ -75,7 +75,10 @@
         sendChannel = pc.createDataChannel("DataChannel", null)
         pc.ondatachannel = function (event) {
             receiveChannel = event.channel
-            receiveChannel.onmessage = function (event) { console.log(event) }
+            receiveChannel.onmessage = function (event) {
+                console.log(event)
+                alert(event.data)
+            }
         }
 
     </script>
