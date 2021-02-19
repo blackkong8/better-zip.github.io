@@ -49,7 +49,7 @@
         }
         
         const peerConnection = new RTCPeerConnection(pcConfig)
-        const socket = new WebSocket('wss://just-chat.kro.kr:57514')
+        const socket = new WebSocket('wss://just-chat.kro.kr:55316')
         const sendChannel = peerConnection.createDataChannel("file")
         sendChannel.binaryType = 'arraybuffer'
         sendChannel.onopen = function () {
