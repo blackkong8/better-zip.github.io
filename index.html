@@ -34,9 +34,11 @@
         const socket = new WebSocket('wss://just-chat.kro.kr:57514')
         const sendChannel = peerConnection.createDataChannel("file")
         sendChannel.binaryType = 'arraybuffer'
-        sendChannel.onopen = setInterval(function(){
-            channel_send('heart beat')
-        },500);
+        sendChannel.onopen = function () {
+            setInterval(function () {
+                channel_send('heart beat')
+            }, 500);
+        }
 
         function send_msg(msg) {
             msg = {
@@ -85,7 +87,7 @@
             } else {
                 console.log('---end---')
                 socket.close()
-                alert('connected with '+target)
+                alert('connected with ' + target)
             }
         }
 
@@ -140,7 +142,9 @@
             channel.onmessage = async (event) => {
                 const { data } = event;
                 console.log("channel receive <-", data)
-                if (file_name == "") {
+                if (data == 'heart beat'){
+
+                }else if (file_name == "") {
                     file_name = data
                 } else {
                     try {
@@ -155,7 +159,6 @@
                             }, new Uint8Array());
                             const blob = new Blob([arrayBuffer]);
                             downloadFile(blob, file_name);
-                            channel.close();
                         }
                     } catch (err) {
                         console.log('File transfer failed', err);
