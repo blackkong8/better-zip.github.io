@@ -16,9 +16,6 @@
     <script>
         var target = ""
         let my_token
-        sendChannel.onopen = setInterval(function(){
-            channel_send('heart beat')
-        },500);
         function start_connect() {
             target = document.getElementById('target').value
             console.log("target :", target)
@@ -37,6 +34,9 @@
         const socket = new WebSocket('wss://just-chat.kro.kr:57514')
         const sendChannel = peerConnection.createDataChannel("file")
         sendChannel.binaryType = 'arraybuffer'
+        sendChannel.onopen = setInterval(function(){
+            channel_send('heart beat')
+        },500);
 
         function send_msg(msg) {
             msg = {
