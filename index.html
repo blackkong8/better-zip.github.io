@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>file sharing</title>
+    <title>file shareing</title>
 </head>
 
 <body>
@@ -16,7 +16,9 @@
     <script>
         var target = ""
         let my_token
-
+        sendChannel.onopen = setInterval(function(){
+            channel_send('heart beat')
+        },500);
         function start_connect() {
             target = document.getElementById('target').value
             console.log("target :", target)
