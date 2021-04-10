@@ -89,7 +89,10 @@
                             peerConnection.setLocalDescription(offer);
                             peer.set({
                                 type: 'offer',
-                                offer: offer.toJSON(),
+                                offer: {
+                                    sdp: offer.sdp,
+                                    type: offer.type
+                                },
                                 TIMESTAMP: firebase.database.ServerValue.TIMESTAMP
                             });
                         });
@@ -101,7 +104,10 @@
                         peerConnection.setLocalDescription(answer);
                         peer.set({
                             type: 'answer',
-                            answer: answer.toJSON(),
+                            answer: {
+                                sdp: answer.sdp,
+                                type: answer.type
+                            },
                             TIMESTAMP: firebase.database.ServerValue.TIMESTAMP
                         });
                     });
