@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase.js"></script>
+    <script>
+        firebase.initializeApp({
+            apiKey: "AIzaSyCi35bN3_sQOdYmv9YmVt-l7hMvKArrN8U",
+            authDomain: "random-chat-webrtc.firebaseapp.com",
+            databaseURL: "https://random-chat-webrtc-default-rtdb.firebaseio.com",
+            projectId: "random-chat-webrtc",
+            storageBucket: "random-chat-webrtc.appspot.com",
+            messagingSenderId: "609114211494",
+            appId: "1:609114211494:web:9c0603bfbbe416580de067",
+            measurementId: "G-B52MN3BKN5"
+        });
+        firebase.analytics();
+
+        let database = firebase.database();
+
+        let user = database.ref('users').push({
+            type: 'init'
+        });
+        let peer
+
+        const peerConnection = new RTCPeerConnection({
+            iceServers: [
+                {
+                    urls: [
+                        'stun:stun1.l.google.com:19302',
+                        'stun:stun2.l.google.com:19302',
+                    ],
+                },
+                {
+                    urls: 'turn:192.158.29.39:3478?transport=udp',
+                    credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+                    username: '28224511:1379330808'
+                },
+                {
+                    urls: 'turn:192.158.29.39:3478?transport=tcp',
+                    credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+                    username: '28224511:1379330808'
+                }
+            ],
+            iceCandidatePoolSize: 10,
+        });
+
+
+        peerConnection.onicecandidate = event => {
+            if (event.candidate) {
+                peer.set({
+                    type: 'candidate',
+                    candidate: event.candidate.toJSON(),
+                    TIMESTAMP: firebase.database.ServerValue.TIMESTAMP
+                })
+            }
+        }
+        var channel;
+        peerConnection.ondatachannel = event => {
+            channel = event.channel
+        }
+
+        user.onDisconnect().remove();
+
+
+        user.on('value', snapshot => {
+            var data = snapshot.val();
+            console.log(data)
+            switch (data.type) {
+                case 'init':
+                    console.log('user key :', user.key);
+                    break;
+                case 'Request_response':
+                    if (!peer) {    //key exchange
+                        peer = database.ref('users/' + data.key);
+                        peer.set({
+                            type: 'Request_response',
+                            key: user.key,
+                            TIMESTAMP: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    } else {  //start
+                        channel = peerConnection.createDataChannel('channel')
+                        peerConnection.createOffer().then(offer => {
+                            peerConnection.setLocalDescription(offer);
+                            peer.set({
+                                type: 'offer',
+                                offer: offer.toJSON(),
+                                TIMESTAMP: firebase.database.ServerValue.TIMESTAMP
+                            });
+                        });
+                    }
+                    break;
+                case 'offer':
+                    peerConnection.setRemoteDescription(data.offer);
+                    peerConnection.createAnswer().then(answer => {
+                        peerConnection.setLocalDescription(answer);
+                        peer.set({
+                            type: 'answer',
+                            answer: answer.toJSON(),
+                            TIMESTAMP: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    });
+                    break;
+                case 'answer':
+                    peerConnection.setRemoteDescription(data.answer);
+                    break;
+                case 'candidate':
+                    peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+                    break;
+                default:
+                    console.error(data)
+                    break;
+            }
+        });
+    </script>
+</body>
+
+</html>
